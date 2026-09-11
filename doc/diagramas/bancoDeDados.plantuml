@@ -1,0 +1,97 @@
+@startuml
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 5
+
+' --- ENUMS ---
+enum StatusEvento {
+    ATIVO
+    CANCELADO
+    FINALIZADO
+}
+
+enum StatusReserva {
+    CONFIRMADA
+    PENDENTE
+    REJEITADA
+    CANCELADA
+}
+
+enum PerfilUsuario {
+    ALUNO
+    PROFESSOR
+    ADMIN
+}
+
+' --- TABELAS / ENTIDADES ---
+
+entity "usuarios" as usuarios {
+    * id_usuario : INT <<PK>>
+    --
+    * nome : VARCHAR
+    * email : VARCHAR
+    * senha_hash : VARCHAR
+    * perfil : PerfilUsuario
+    * ativo : BOOLEAN
+    * tentativas_login : INT
+}
+
+entity "eventos" as eventos {
+    * id_evento : INT <<PK>>
+    --
+    * id_organizador : INT <<FK>>
+    * titulo : VARCHAR
+    * descricao : TEXT
+    * carga_horaria : INT
+    * limite_vagas : INT
+    * status_evento : StatusEvento
+}
+
+entity "inscricoes" as inscricoes {
+    * id_inscricao : INT <<PK>>
+    --
+    * id_usuario : INT <<FK>>
+    * id_evento : INT <<FK>>
+    * data_inscricao : DATETIME
+    * presenca_confirmada : BOOLEAN
+    * lembrete_enviado : BOOLEAN
+}
+
+entity "reservas" as reservas {
+    * id_reserva : INT <<PK>>
+    --
+    * id_evento : INT <<FK>>
+    * id_sala : INT <<FK>>
+    * data_reserva : DATE
+    * hora_inicio : TIME
+    * hora_fim : TIME
+    * status_reserva : StatusReserva
+    * justificativa_solicitacao : TEXT
+    * motivo_rejeicao : TEXT
+}
+
+entity "salas" as salas {
+    * id_sala : INT <<PK>>
+    --
+    * nome_identificador : VARCHAR
+    * capacidade : INT
+    * recursos : TEXT
+    * exige_aprovacao : BOOLEAN
+    * hora_inicio_grade : TIME
+    * hora_fim_grade : TIME
+    * dias_funcionamento : VARCHAR
+}
+
+' --- RELACIONAMENTOS COM CARDINALIDADES ---
+
+' 1 usuário organiza de 0 a N eventos
+usuarios "1" ||--o{ "0..*" eventos : "organiza (US01)"
+
+' 1 usuário realiza de 0 a N inscrições
+usuarios "1" ||--o{ "0..*" inscricoes : "inscreve-se (US02)"
+
+' 1 evento possui de 0 a N inscrições
+eventos "1" ||--o{ "0..*" inscricoes : "possui (US07)"
+
+' 1 evento exige de 1 a N reservas
+eventos "1" ||--|{ "1..*" reservas : "exige
