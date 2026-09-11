@@ -1,0 +1,58 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Professor" as prof
+actor "Aluno" as aluno
+actor "Administrador" as admin
+actor "Temporizador do Sistema" as timer <<Service>>
+actor "Serviço de E-mail" as email <<System>>
+
+' Heranças entre atores
+aluno -up-|> prof
+prof -down-|> admin
+
+rectangle "Sistema de Cursos e Eventos" {
+
+    rectangle "Gestão de Eventos e Reservas" {
+        usecase "Validar Conflito de Horário" as UC_Validar
+        usecase "Reservar Sala do Instituto" as UC_Reservar
+        usecase "Cadastrar Evento" as UC_Cadastrar
+        usecase "Cancelar Evento / Reserva" as UC_Cancelar
+
+        UC_Reservar .> UC_Validar : <<include>>
+        UC_Cadastrar .> UC_Reservar : <<include>>
+    }
+
+    rectangle "Gestão de Participantes" {
+        usecase "Inscrever-se em Evento" as UC_Inscrever
+        usecase "Gerenciar Lista de Participantes" as UC_GerenciarPart
+        usecase "Disparar Lembretes de Eventos" as UC_Disparar
+    }
+
+    rectangle "Módulo de Administração & Infraestrutura" {
+        usecase "Manter Cadastro de Salas" as UC_Salas
+        usecase "Manter Cadastro de Usuários" as UC_Usuarios
+        usecase "Aprovar Reservas Excepcionais" as UC_Aprovar
+    }
+}
+
+' Relacionamentos do Professor
+prof --> UC_Reservar
+prof --> UC_Cadastrar
+prof --> UC_Cancelar
+prof --> UC_GerenciarPart
+
+' Relacionamentos do Aluno
+aluno --> UC_Inscrever
+
+' Relacionamentos do Temporizador e E-mail
+timer --> UC_Disparar
+UC_Disparar --> email
+
+' Relacionamentos do Administrador
+admin --> UC_Salas
+admin --> UC_Usuarios
+admin --> UC_Aprovar
+
+@enduml
