@@ -1,0 +1,66 @@
+# =============================================================================
+# Campus Event Hub - Docker Compose
+# =============================================================================
+# Sobe a infraestrutura de DESENVOLVIMENTO. Hoje: apenas o banco PostgreSQL.
+# O backend (IntelliJ) e o frontend (VS Code) rodam fora do Docker, direto na
+# maquina, para manter o hot reload e o debug funcionando.
+#
+# Comandos principais (rodar na raiz do projeto):
+#   docker compose up -d      -> sobe o banco em segundo plano
+#   docker compose ps         -> mostra se o container esta rodando
+#   docker compose logs -f db -> acompanha os logs do banco
+#   docker compose stop       -> para o banco (os dados sao mantidos)
+#   docker compose down       -> remove o container (os dados sao mantidos)
+#   docker compose down -v    -> remove o container E APAGA todos os dados
+#
+# Os valores abaixo podem ser alterados criando um arquivo .env na raiz
+# (ex.: DB_PORT=5433). Sem esse arquivo, os valores padrao sao usados e ja
+# batem com o backend/.env.example.
+#
+# Futuro: no final do projeto, o backend e o frontend entram aqui em um
+# profile "full" (docker compose --profile full up -d) para rodar tudo junto.
+# =============================================================================
+
+services:
+  db:
+    # Imagem oficial do PostgreSQL 17 na versao "alpine" (menor e mais leve).
+    # A mesma versao e usada nos testes (TestcontainersConfiguration.java).
+    image: postgres:17-alpine
+
+    # Nome fixo do container, facilita comandos como: docker exec -it campus-event-hub-db psql -U postgres
+    container_name: campus-event-hub-db
+
+    # Reinicia o banco automaticamente se o Docker for reiniciado,
+    # a menos que ele tenha sido parado manualmente.
+    restart: unless-stopped
+
+    # Variaveis lidas pela imagem do PostgreSQL na PRIMEIRA inicializacao
+    # para criar o banco e o usuario. A sintaxe ${VAR:-padrao} usa o valor
+    # do .env da raiz, ou o padrao se ele nao existir.
+    environment:
+      POSTGRES_DB: ${DB_NAME:-campus_event_hub}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+
+    # "porta_na_sua_maquina:porta_no_container". O Spring conecta em
+    # localhost:5432. Se ja tiver um PostgreSQL instalado usando a 5432,
+    # troque DB_PORT no .env da raiz (e a DB_URL no backend/.env).
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+    # Guarda os dados em um volume do Docker. Assim, os dados continuam
+    # existindo mesmo se o container for parado ou removido (docker compose down).
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+    # Verifica a cada 10s se o banco esta pronto para receber conexoes.
+    # O status aparece em "docker compose ps" como (healthy).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Declaracao do volume nomeado usado acima
+volumes:
+  postgres-data:

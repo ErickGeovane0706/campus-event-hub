@@ -92,6 +92,32 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!--
+			Testcontainers: durante o "mvn test", sobe um PostgreSQL temporario em
+			um container Docker, roda os testes nele e apaga o container no final.
+			Assim os testes usam um banco real (igual ao de producao) sem depender
+			de nenhum banco instalado na maquina. Requer o Docker em execucao.
+			As versoes sao gerenciadas pelo Spring Boot (nao precisa informar).
+		-->
+		<dependency>
+			<!-- Integracao Spring Boot + Testcontainers (habilita o @ServiceConnection) -->
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<!-- Integracao com o JUnit 5 (ciclo de vida dos containers nos testes) -->
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<!-- Modulo com o container pronto do PostgreSQL -->
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
