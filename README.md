@@ -25,8 +25,38 @@ Plataforma de gestão de eventos e alocação de espaços físicos para a comuni
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
-- Java 17+ (ou superior)
+- Java 21+
 - Node.js 18+ (com npm ou yarn)
 - PostgreSQL ativo
+
+### Estrutura do repositório
+
+```
+campus-event-hub/
+├── backend/    # API REST em Spring Boot (Model + Controller)
+├── frontend/   # Aplicação React (View)
+└── doc/        # Documentação e diagramas
+```
+
+### Backend
+
+```bash
+cd backend
+cp .env.example .env      # depois edite o .env com os dados do seu PostgreSQL
+./mvnw spring-boot:run    # no Windows: mvnw.cmd spring-boot:run
+```
+
+A API sobe em `http://localhost:8080` e a documentação Swagger fica em `http://localhost:8080/swagger-ui.html`.
+
+### Frontend
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+A aplicação sobe em `http://localhost:5173`.
 
 ---

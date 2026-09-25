@@ -1,8 +1,35 @@
+### Variaveis de ambiente (NUNCA commitar) ###
+.env
+.env.*
+!.env.example
+
+### Sistema operacional ###
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### Logs ###
+*.log
+logs/
+
+### Backend (Java / Maven) ###
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+### Frontend (Node / React / Vite) ###
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+coverage/
 
 ### STS ###
 .apt_generated
@@ -18,11 +45,11 @@ target/
 *.iws
 *.iml
 *.ipr
+out/
 
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -30,4 +57,5 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
-.vscode/
+.vscode/*
+!.vscode/extensions.json
