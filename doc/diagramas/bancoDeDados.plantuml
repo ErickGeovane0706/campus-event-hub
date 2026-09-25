@@ -3,6 +3,8 @@ skinparam linetype ortho
 skinparam shadowing false
 skinparam roundcorner 5
 
+' Legenda: * = campo obrigatorio (NOT NULL) | <<UK>> = valor unico
+
 ' --- ENUMS ---
 enum StatusEvento {
     ATIVO
@@ -29,11 +31,12 @@ entity "usuarios" as usuarios {
     * id_usuario : INT <<PK>>
     --
     * nome : VARCHAR
-    * email : VARCHAR
+    * email : VARCHAR <<UK>>
     * senha_hash : VARCHAR
     * perfil : PerfilUsuario
     * ativo : BOOLEAN
     * tentativas_login : INT
+    bloqueado_ate : DATETIME
 }
 
 entity "eventos" as eventos {
@@ -42,8 +45,10 @@ entity "eventos" as eventos {
     * id_organizador : INT <<FK>>
     * titulo : VARCHAR
     * descricao : TEXT
+    * publico_alvo : VARCHAR
     * carga_horaria : INT
     * limite_vagas : INT
+    orientacoes : TEXT
     * status_evento : StatusEvento
 }
 
@@ -55,6 +60,8 @@ entity "inscricoes" as inscricoes {
     * data_inscricao : DATETIME
     * presenca_confirmada : BOOLEAN
     * lembrete_enviado : BOOLEAN
+    ..
+    <<UK>> (id_usuario, id_evento)
 }
 
 entity "reservas" as reservas {
@@ -66,20 +73,21 @@ entity "reservas" as reservas {
     * hora_inicio : TIME
     * hora_fim : TIME
     * status_reserva : StatusReserva
-    * justificativa_solicitacao : TEXT
-    * motivo_rejeicao : TEXT
+    justificativa_solicitacao : TEXT
+    motivo_rejeicao : TEXT
 }
 
 entity "salas" as salas {
     * id_sala : INT <<PK>>
     --
-    * nome_identificador : VARCHAR
+    * nome_identificador : VARCHAR <<UK>>
     * capacidade : INT
     * recursos : TEXT
     * exige_aprovacao : BOOLEAN
     * hora_inicio_grade : TIME
     * hora_fim_grade : TIME
     * dias_funcionamento : VARCHAR
+    * ativa : BOOLEAN
 }
 
 ' --- RELACIONAMENTOS COM CARDINALIDADES ---
@@ -94,4 +102,9 @@ usuarios "1" ||--o{ "0..*" inscricoes : "inscreve-se (US02)"
 eventos "1" ||--o{ "0..*" inscricoes : "possui (US07)"
 
 ' 1 evento exige de 1 a N reservas
-eventos "1" ||--|{ "1..*" reservas : "exige
+eventos "1" ||--|{ "1..*" reservas : "exige (US01)"
+
+' 1 sala é alocada em 0 a N reservas
+salas "1" ||--o{ "0..*" reservas : "aloca (US04 / US05)"
+
+@enduml

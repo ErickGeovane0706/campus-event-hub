@@ -1,0 +1,81 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Usuário Autenticado" as usuario
+actor "Organizador" as organizador
+actor "Aluno" as aluno
+actor "Professor" as prof
+actor "Administrador" as admin
+actor "Temporizador do Sistema" as timer <<Service>>
+actor "Serviço de E-mail" as email <<System>>
+
+' Especialização: Aluno e Professor podem organizar eventos (são Organizadores)
+aluno --|> organizador
+prof --|> organizador
+
+' Organizador e Administrador SÃO tipos de Usuário Autenticado
+organizador --|> usuario
+admin --|> usuario
+
+rectangle "Sistema de Cursos e Eventos" {
+
+    rectangle "Autenticação & Acesso" {
+        usecase "Autenticar-se (RF01)" as UC_Auth
+    }
+
+    rectangle "Gestão de Eventos e Reservas" {
+        usecase "Validar Conflito de Horário (RF06)" as UC_Validar
+        usecase "Reservar Sala do Instituto (RF05)" as UC_Reservar
+        usecase "Cadastrar Evento (RF04)" as UC_Cadastrar
+        usecase "Cancelar Evento / Reserva" as UC_Cancelar
+
+        UC_Reservar .> UC_Validar : <<include>>
+        UC_Cadastrar .> UC_Reservar : <<include>>
+        UC_Cadastrar .> UC_Auth : <<include>>
+    }
+
+    rectangle "Gestão de Participantes" {
+        usecase "Inscrever-se em Evento (RF08)" as UC_Inscrever
+        usecase "Gerenciar Lista de Participantes (RF09)" as UC_GerenciarPart
+        usecase "Disparar Lembretes de Eventos" as UC_Disparar
+
+        UC_Inscrever .> UC_Auth : <<include>>
+    }
+
+    rectangle "Módulo de Administração & Infraestrutura" {
+        usecase "Manter Cadastro de Salas (RF02)" as UC_Salas
+        usecase "Definir Grade Horária da Sala (RF03)" as UC_Grade
+        usecase "Manter Cadastro de Usuários (RF01)" as UC_Usuarios
+        usecase "Aprovar Reservas Excepcionais (RF07)" as UC_Aprovar
+
+        UC_Salas .> UC_Grade : <<include>>
+    }
+}
+
+' Todo usuário autenticado se autentica e pode se inscrever em eventos (US02)
+usuario --> UC_Auth
+usuario --> UC_Inscrever
+
+' Relacionamentos do Organizador (Aluno ou Professor) - US01, US05, US06, US07
+organizador --> UC_Cadastrar
+organizador --> UC_Reservar
+organizador --> UC_Cancelar
+organizador --> UC_GerenciarPart
+
+' Relacionamentos do Temporizador e E-mail - US03
+timer --> UC_Disparar
+UC_Disparar --> email
+
+' Notificações por e-mail: cancelamento (US06) e decisão de aprovação (US09)
+UC_Cancelar --> email
+UC_Aprovar --> email
+
+' Relacionamentos do Administrador - US04, US06, US07, US08, US09
+admin --> UC_Salas
+admin --> UC_Usuarios
+admin --> UC_Aprovar
+admin --> UC_Cancelar
+admin --> UC_GerenciarPart
+
+@enduml
