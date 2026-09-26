@@ -75,11 +75,10 @@ Toda resposta de erro usa o padrão **Problem Details (RFC 9457)**, suportado na
 ```json
 {
   "type": "about:blank",
-  "title": "Conflito de horário",
+  "title": "Violação de regra de negócio",
   "status": 409,
   "detail": "A sala Lab 01 já está reservada em 15/10/2026 das 14:00 às 16:00.",
-  "instance": "/api/reservas",
-  "erros": null
+  "instance": "/api/reservas"
 }
 ```
 
@@ -90,23 +89,20 @@ Toda resposta de erro usa o padrão **Problem Details (RFC 9457)**, suportado na
 | `status` | O mesmo código HTTP da resposta |
 | `detail` | **Mensagem em português, pensada para ser exibida ao usuário** |
 | `instance` | Caminho da requisição que falhou |
-| `erros` | Lista de campos inválidos (apenas em erros de validação, `400`); `null` nos demais casos |
 
 Exemplo de erro de validação (`400`):
 
 ```json
 {
   "type": "about:blank",
-  "title": "Dados inválidos",
+  "title": "Validação de argumentos",
   "status": 400,
   "detail": "Um ou mais campos estão inválidos.",
-  "instance": "/api/salas",
-  "erros": [
-    { "campo": "capacidade", "mensagem": "deve ser maior que zero" },
-    { "campo": "nomeIdentificador", "mensagem": "é obrigatório" }
-  ]
+  "instance": "/api/salas"
 }
 ```
+
+O erro de validação **não informa quais campos falharam**: a mensagem é sempre a mesma. A validação campo a campo (obrigatório, tamanho, valor mínimo) deve ser feita no **formulário do frontend**, antes de enviar; o `@Valid` do backend é a última barreira.
 
 A conversão das exceções para este formato é centralizada no `GlobalExceptionHandler` (issue #3).
 
